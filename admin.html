@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      color: #fff;
+    }
+    #login-container {
+      background: rgba(0, 0, 0, 0.6);
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      width: 320px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 20px;
+      font-weight: normal;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 12px 10px;
+      margin: 10px 0 20px 0;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #5a67d8;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #434190;
+    }
+    #error-msg {
+      color: #ff6b6b;
+      margin-top: 10px;
+      height: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div id="login-container">
+    <h2>Admin Login</h2>
+    <input type="text" id="username" placeholder="Username" autocomplete="off" />
+    <input type="password" id="password" placeholder="Password" autocomplete="off" />
+    <button onclick="login()">Login</button>
+    <div id="error-msg"></div>
+  </div>
+
+  <script>
+    function login() {
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value;
+
+      // Simple hardcoded credentials - replace with your own validation
+      if (user === 'admin' && pass === 'password123') {
+        alert('Login successful!');
+        // Redirect to admin dashboard or page
+        window.location.href = 'show.html'; // Replace with your admin page
+      } else {
+        document.getElementById('error-msg').textContent = 'Invalid username or password.';
+      }
+    }
+
+    // Optional: Enter key triggers login
+    document.getElementById('password').addEventListener('keyup', function(event) {
+      if (event.key === 'Enter') {
+        login();
+      }
+    });
+  </script>
+</body>
+</html>

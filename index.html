@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Skill India Mock Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 80px 40px 40px;
+      color: #333;
+    }
+    #top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      background: rgba(135, 206, 235, 0.5);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      color: #000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      font-size: 16px;
+      font-weight: bold;
+      z-index: 10000;
+      box-sizing: border-box;
+      border-bottom: 1px solid rgba(135, 206, 235, 0.3);
+    }
+    #timer {
+      color: #2c3e50;
+      display: none; /* Hide initially */
+    }
+    #user-name {
+      color: #2c3e50;
+    }
+    #admin-login-btn {
+      position: fixed;
+      top: 60px;
+      right: 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      z-index: 9999;
+    }
+    #admin-login-btn:hover {
+      background-color: #2980b9;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+      margin-top: 0;
+    }
+    #welcome, #quiz-section {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      padding: 12px 25px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2f7db0;
+    }
+    h3 {
+      margin-top: 20px;
+      color: #34495e;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    #review, #resultModal, #user-info {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .question-review {
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+    }
+    .option {
+      padding: 6px 10px;
+      margin: 4px 0;
+      border-radius: 5px;
+      border: 1px solid transparent;
+    }
+    .correct {
+      background-color: #d4edda;
+      color: #155724;
+      border-color: #28a745;
+    }
+    .user-selected {
+      border-color: #007bff;
+    }
+    .user-selected.wrong {
+      background-color: #f8d7da;
+      color: #721c24;
+      border-color: #dc3545;
+    }
+    #resultModal {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.7);
+    }
+    #resultModalContent {
+      background-color: white;
+      margin: 10% auto;
+      padding: 40px;
+      border-radius: 10px;
+      max-width: 400px;
+      text-align: center;
+    }
+    #resultModal h2 {
+      color: #2ecc71;
+      margin-bottom: 15px;
+    }
+    #closeModal {
+      margin-top: 20px;
+      background-color: #e74c3c;
+    }
+    #name-instruction {
+      color: #555;
+      font-size: 14px;
+      margin-top: -10px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    #review {
+      display: none;
+    }
+    #user-info {
+      display: none;
+      font-size: 16px;
+      color: #2c3e50;
+    }
+  </style>
+</head>
+<body>
+
+<div id="top-bar">
+  <div id="timer">Time left: 20:00</div>
+  <div id="user-name"></div>
+</div>
+
+<button id="admin-login-btn" onclick="location.href='admin.html'">Admin Login</button>
+
+<h1>Skill India Mock Test</h1>
+
+<div id="welcome">
+  <h2>Welcome!</h2>
+  <p>Please enter your name to start the test:</p>
+  <input type="text" id="name-input" placeholder="Your name" required />
+  <p id="name-instruction">Please answer all questions before submitting. You have 20 minutes.</p>
+  <button onclick="startTest()">Start Test</button>
+</div>
+
+<div id="user-info">
+  <p><strong>Name:</strong> <span id="display-name"></span></p>
+  <p><strong>Date:</strong> <span id="display-date"></span></p>
+</div>
+
+<div id="quiz-section" style="display:none;"></div>
+
+<div id="review"></div>
+
+<div id="resultModal">
+  <div id="resultModalContent">
+    <h2>✅ Exam Submitted!</h2>
+    <p id="scoreText"></p>
+    <button id="closeModal" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<script>
+  const quizSection = document.getElementById('quiz-section');
+  const form = document.createElement('form');
+  form.id = "quiz-form";
+  form.innerHTML = '<input type="hidden" name="username" id="hidden-name" />';
+  quizSection.appendChild(form);
+
+  const questions = {
+    q1: "What is a Watermark in MS Word?",
+    q2: "In which tab is the Find and Replace option located in MS Word?",
+    q3: "What is the shortcut key for Bold?",
+    q4: "Which is the not correct format of an email ID?",
+    q5: "Which of the following is a valid excel document file extension?",
+    q6: "What is the use of Ctrl + X?",
+    q7: "Which of these is a formula in Excel to get the largest number?",
+    q8: "In Excel, the intersection of a row and a column is called a:",
+    q9: "What is the shortcut to start a PowerPoint slideshow from the beginning?",
+    q10: "In an email, what does BCC stand for?",
+    q11: "What is the purpose of Slide Master in PowerPoint?",
+    q12: "What is a Transition in PowerPoint?",
+    q13: "What is the function of Track Changes in MS Word?",
+    q14: "What is the use of Ctrl + Z?",
+    q15: "What is the purpose of the Format Painter tool?",
+    q16: "What is the function of Ctrl + S?",
+    q17: "What is the use of Ctrl + V?",
+    q18: "A drop-down list in Excel is used for:",
+    q19: "What does CPU stand for?",
+    q20: "Which device is used to input text into a computer?"
+  };
+
+  const choices = {
+    q1: { A: "A type of font", B: "Background text/image behind document text", C: "A kind of template", D: "None of the above" },
+    q2: { A: "Insert", B: "Home", C: "Review", D: "Layout" },
+    q3: { A: "Ctrl + I", B: "Ctrl + U", C: "Ctrl + B", D: "Ctrl + Shift + B" },
+    q4: { A: "ajay@gmail.com", B: "ajay#gmail.com", C: "ajay@domain.com", D: "ajay_123@domain.org" },
+    q5: { A: ".docx", B: ".xlsx", C: ".pptx", D: ".pdf" },
+    q6: { A: "Copy", B: "Paste", C: "Cut", D: "Undo" },
+    q7: { A: "=SMALL(A1:A5)", B: "=MAX(A1:A5)", C: "=BIGGEST(A1:A5)", D: "=TOP(A1:A5)" },
+    q8: { A: "Table", B: "Graph", C: "Cell", D: "Box" },
+    q9: { A: "F1", B: "F5", C: "Shift + F5", D: "Ctrl + F5" },
+    q10: { A: "Blind Carbon Copy", B: "Background Contact Copy", C: "Blue Contact Carbon", D: "Backward Copy Content" },
+    q11: { A: "To animate slides", B: "To control overall design/layout", C: "To write notes", D: "To view presentation outline" },
+    q12: { A: "Moving to next slide with animation", B: "Adding bullet points", C: "Applying font style", D: "Copying slides" },
+    q13: { A: "Counting words", B: "Tracking spelling errors", C: "Reviewing and recording edits", D: "Checking grammar" },
+    q14: { A: "Zoom in", B: "Undo the last action", C: "Redo the last action", D: "Save the document" },
+    q15: { A: "To insert pictures", B: "To copy formatting from one place and apply it to another", C: "To change font size", D: "To check spelling" },
+    q16: { A: "Select all", B: "Save the current document", C: "Search within the document", D: "Share the file" },
+    q17: { A: "View document", B: "Paste copied content", C: "Print the document", D: "Save as PDF" },
+    q18: { A: "Entering formulas", B: "Selecting from predefined options", C: "Formatting cells", D: "Printing cells" },
+    q19: { A: "Central Processing Unit", B: "Computer Primary Unit", C: "Central Print Unit", D: "Control Processing Unit" },
+    q20: { A: "Monitor", B: "Mouse", C: "Printer", D: "Keyboard" }
+  };
+
+  const correctAnswers = {
+    q1: "B", q2: "B", q3: "C", q4: "B", q5: "B", q6: "C", q7: "B", q8: "C",
+    q9: "B", q10: "A", q11: "B", q12: "A", q13: "C", q14: "B", q15: "B",
+    q16: "B", q17: "B", q18: "B", q19: "A", q20: "D"
+  };
+
+  const adminBtn = document.getElementById('admin-login-btn');
+  const nameInput = document.getElementById('name-input');
+  const nameInstruction = document.getElementById('name-instruction');
+  const displayName = document.getElementById('display-name');
+  const displayDate = document.getElementById('display-date');
+  const userInfo = document.getElementById('user-info');
+  const timerDisplay = document.getElementById('timer');
+  const userNameNav = document.getElementById('user-name');
+  const review = document.getElementById('review');
+  const modal = document.getElementById('resultModal');
+  const scoreText = document.getElementById('scoreText');
+
+  let submitted = false;
+  let timeLeft = 20 * 60;
+  let timerInterval;
+
+  nameInput.addEventListener('input', () => {
+    nameInstruction.style.display = nameInput.value.trim() ? 'block' : 'none';
+  });
+
+  function startTest() {
+    const name = nameInput.value.trim();
+    if (!name) return alert('Please enter your name to begin.');
+    document.getElementById('hidden-name').value = name;
+    displayName.textContent = name;
+    displayDate.textContent = new Date().toLocaleDateString();
+    userNameNav.textContent = name;
+    userInfo.style.display = 'block';
+    document.getElementById('welcome').style.display = 'none';
+    quizSection.style.display = 'block';
+    timerDisplay.style.display = 'block';   // Show timer only when test starts
+    adminBtn.style.display = 'none';  // Hide admin button when test starts
+    timerInterval = setInterval(updateTimer, 1000);
+    updateTimer();
+  }
+
+  function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerDisplay.textContent = `Time left: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      if (!submitted) form.requestSubmit();
+    }
+    timeLeft--;
+  }
+
+  Object.entries(questions).forEach(([qKey, qText], i) => {
+    const h3 = document.createElement('h3');
+    h3.innerText = `${i + 1}. ${qText}`;
+    form.appendChild(h3);
+    const opts = choices[qKey];
+    for (const [val, label] of Object.entries(opts)) {
+      const wrap = document.createElement('label');
+      wrap.innerHTML = `<input type="radio" name="${qKey}" value="${val}" required> ${val}. ${label}`;
+      form.appendChild(wrap);
+    }
+  });
+
+  const submitBtn = document.createElement('button');
+  submitBtn.type = 'submit';
+  submitBtn.textContent = 'Submit Answers';
+  form.appendChild(submitBtn);
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (submitted) return;
+    submitted = true;
+    clearInterval(timerInterval);
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+    let score = 0;
+    const total = Object.keys(correctAnswers).length;
+
+    for (const [q, ans] of Object.entries(correctAnswers)) {
+      if (data[q] === ans) score++;
+    }
+    data.score = `${score} / ${total}`;
+
+    await fetch("https://script.google.com/macros/s/AKfycbwzfyKM5dwGfbiRJlnpsT4waJ0dCKIhxGJ8LhgZB0DbTDqdBWYeMlAwsc71DQ-sSMN_aA/exec", {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+
+    scoreText.textContent = `You scored ${score} out of ${total}`;
+    modal.style.display = 'block';
+    quizSection.style.display = 'none';
+
+    review.style.display = 'block';
+    review.innerHTML = '<h2>Review your answers</h2>';
+
+    for (const q of Object.keys(questions)) {
+      const userAnswer = data[q];
+      const correctAnswer = correctAnswers[q];
+      const isCorrect = userAnswer === correctAnswer;
+
+      let optionsHtml = '';
+      for (const [key, val] of Object.entries(choices[q])) {
+        let classes = 'option';
+        if (key === correctAnswer) classes += ' correct';
+        if (key === userAnswer) classes += isCorrect ? ' user-selected' : ' user-selected wrong';
+        optionsHtml += `<div class="${classes}">${key}. ${val}</div>`;
+      }
+
+      review.innerHTML += `
+        <div class="question-review">
+          <h3>${questions[q]}</h3>
+          ${optionsHtml}
+          <p>Status: <strong class="${isCorrect ? 'correct' : 'wrong'}">${isCorrect ? 'Correct' : 'Wrong'}</strong></p>
+        </div>`;
+    }
+
+    review.innerHTML += `<div style="text-align:center; font-size:18px;"><strong>Total Score: ${score} / ${total}</strong></div>`;
+  });
+
+  function closeModal() {
+    modal.style.display = 'none';
+  }
+</script>
+</body>
+</html>
